@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Teller Practice</title>
+<style>
+:root{--bg:#e8ecee;--pane:#fbfcfc;--ink:#17262c;--mute:#56676e;--teal:#1d5668;--tealink:#fff;--amber:#b8741a;--ok:#1f7a4d;--bad:#b3402f;--line:#c9d3d7;--wash:#eef3f5;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f181c;--pane:#18252b;--ink:#e6eef0;--mute:#9bb0b7;--teal:#5fb0c8;--tealink:#08222b;--amber:#e0a14a;--ok:#58c48b;--bad:#ef8a78;--line:#2f4249;--wash:#1e2e35;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f181c;--pane:#18252b;--ink:#e6eef0;--mute:#9bb0b7;--teal:#5fb0c8;--tealink:#08222b;--amber:#e0a14a;--ok:#58c48b;--bad:#ef8a78;--line:#2f4249;--wash:#1e2e35;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Segoe UI","Helvetica Neue",Arial,system-ui,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline;justify-content:space-between;max-width:1080px;margin:0 auto;padding:20px 16px 8px}
+h1{font:600 26px/1.2 Georgia,"Times New Roman",serif;margin:0}
+h2{font:600 19px/1.3 Georgia,"Times New Roman",serif;margin:0 0 8px}
+#tally{color:var(--mute);font-size:14px}
+main{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px;max-width:1080px;margin:0 auto;padding:8px 16px 40px}
+@media (max-width:760px){main{grid-template-columns:1fr}}
+.pane{background:var(--pane);border:1px solid var(--line);border-radius:6px;padding:18px}
+.say{font:italic 19px/1.45 Georgia,serif;border-left:4px solid var(--amber);padding:2px 0 2px 14px;margin:12px 0}
+.card{background:var(--wash);border:1px dashed var(--line);border-radius:4px;padding:10px 12px;font-size:15px}
+.muted{color:var(--mute);font-size:14px}
+label{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
+input,select{width:100%;padding:9px 10px;font:inherit;color:var(--ink);background:var(--pane);border:1px solid var(--line);border-radius:4px}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--teal);outline-offset:1px}
+.row{display:flex;gap:8px;align-items:flex-end}.row>div{flex:1}
+button{font:inherit;font-weight:600;padding:9px 16px;border-radius:4px;border:1px solid var(--teal);background:var(--teal);color:var(--tealink);cursor:pointer}
+button.alt{background:transparent;color:var(--teal)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.member{background:var(--wash);border:1px solid var(--line);border-radius:4px;padding:12px 14px;margin:14px 0}
+.member b{font-size:17px}
+.acct{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.acct:first-of-type{margin-top:8px}
+.checks label{display:flex;gap:10px;align-items:center;font-weight:400;font-size:15px;margin:6px 0}
+.checks input{width:auto}
+.err{color:var(--bad);font-size:14px;margin-top:6px}
+.hide{display:none}
+#fb{margin-top:18px;border-top:2px solid var(--line);padding-top:14px}
+#fb ul{list-style:none;padding:0;margin:8px 0}
+#fb li{padding:5px 0 5px 26px;position:relative}
+#fb li::before{position:absolute;left:0;font-weight:700}
+#fb li.y::before{content:"✓";color:var(--ok)}#fb li.n::before{content:"✗";color:var(--bad)}
+.verdict{font-weight:700;font-size:18px}.verdict.y{color:var(--ok)}.verdict.n{color:var(--bad)}
+.tip{background:var(--wash);border-radius:4px;padding:10px 12px;font-size:15px}
+.den{display:grid;grid-template-columns:repeat(auto-fit,minmax(64px,1fr));gap:6px}.den label{margin:0 0 2px;text-align:center}.den input,.nr input{padding:6px 8px;text-align:center}.nr{margin:8px 0}.nr input{display:inline-block;width:100px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{background:transparent;color:var(--teal)}
+.tabs button.on{background:var(--teal);color:var(--tealink)}
+main.one{grid-template-columns:1fr}
+#dfb ul,#reflist ul{padding-left:20px;margin:8px 0}
+#dans,#code{text-transform:uppercase}
+.codes{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:4px 24px;padding:0;list-style:none}
+</style>
+</head>
+<body>
+<header><h1>Teller practice</h1><nav class="tabs"><button id="t_scen" class="on">Scenarios</button><button id="t_drill">Tran code drill</button><button id="t_ref">Code reference</button></nav><div id="tally" aria-live="polite"></div></header>
+<main id="scen">
+<section class="pane" aria-labelledby="wh">
+<h2 id="wh">At your window</h2>
+<div class="muted" id="stitle"></div>
+<p class="say" id="say"></p>
+<div class="card" id="cardinfo"></div>
+<div class="card hide" id="handed" style="margin-top:10px"></div>
+</section>
+<section class="pane" aria-labelledby="sh">
+<h2 id="sh">Teller station</h2>
+<div class="row"><div><label for="mnum">Member number</label><input id="mnum" inputmode="numeric" autocomplete="off"></div><button id="lookup">Look up member</button></div>
+<div class="err" id="lerr"></div>
+<div id="verify" class="hide"><div class="muted">Member found. Verify the member before you open the account.</div><label for="vpw">What’s the member’s password?</label><div class="row"><div><input id="vpw" autocomplete="off" autocapitalize="none"></div><button id="vgo">Verify</button></div><div class="err" id="verr"></div><div id="vdecl" class="hide btns"><button class="alt" id="vno">Decline: password doesn’t match</button></div></div>
+<div id="member" class="member hide"></div>
+<form id="txn" class="hide" onsubmit="return false">
+<label for="act">Transaction</label>
+<select id="act">
+<option value="deposit">Deposit</option><option value="withdrawal">Withdrawal</option><option value="transfer">Transfer</option><option value="decline">Decline or refer to supervisor</option>
+</select>
+<div id="fAcct"><label for="acct" id="acctL">Into account</label><select id="acct"></select></div>
+<div id="fTo" class="hide"><label for="to" id="toL">To account</label><select id="to"></select></div>
+<div id="fAmt"><label for="amt">Amount</label><input id="amt" inputmode="decimal" placeholder="0.00"></div>
+<div id="fCash"><label for="cash">Cash back (optional)</label><input id="cash" inputmode="decimal" placeholder="0.00"></div>
+<div id="fWhy" class="hide"><label for="why">Reason</label><select id="why"><option value="nsf">Insufficient funds</option><option value="sup">Needs supervisor override</option></select></div>
+<div id="cashIn" class="hide"><label>Count the cash the member handed you</label><div class="row"><div><label for="cin">Total you counted</label><input id="cin" inputmode="decimal" placeholder="0.00"></div><div><label for="cres">Compared to what the member said</label><select id="cres"><option value="match">Matches</option><option value="over">Overage (more than stated)</option><option value="short">Shortage (less than stated)</option></select></div><div><label for="cdiff">Difference</label><input id="cdiff" inputmode="decimal" placeholder="0.00"></div></div></div>
+<div id="cashOut" class="hide"><label>Cash to give the member: <b id="coAmt"></b></label><div class="den" id="den"></div><div class="muted" id="coTotal"></div><div id="narr"></div></div>
+<div id="fCode"><label for="code">Tran code</label><input id="code" autocomplete="off" autocapitalize="characters" placeholder="e.g. CR SD"></div>
+<fieldset class="checks" style="border:0;padding:0;margin:14px 0 0"><legend style="font-weight:600;font-size:14px;padding:0">Before you finish, I have…</legend>
+<label><input type="checkbox" value="sig"> Compared signature to the card on file</label>
+<label><input type="checkbox" value="endorse"> Checked the endorsement on the back of the check</label>
+<label><input type="checkbox" value="balance"> Confirmed the balance covers the amount</label>
+</fieldset>
+<div class="btns"><button id="go">Complete transaction</button></div>
+</form>
+<div id="fb" class="hide" aria-live="polite"></div>
+</section>
+</main>
+<main id="drill" class="one hide"><section class="pane" aria-labelledby="dh"><h2 id="dh">Tran code drill</h2><div class="muted" id="dcount"></div><p class="say" id="dsay"></p>
+<label for="dans">Your tran code</label><div class="row"><div><input id="dans" autocomplete="off" autocapitalize="characters" placeholder="e.g. CR SD"></div><button id="dcheck">Check code</button></div>
+<div id="dfb" aria-live="polite"></div></section></main>
+<main id="ref" class="one hide"><section class="pane"><h2>Common tran codes</h2><ul class="codes" id="reflist"></ul>
+<p class="muted">Most codes have two parts. The first tells you the source of the money, the second where it is going. Cash: CR in, CD out. Checks: KR to deposit, KC to cash. Buying or selling your drawer or cash with another teller: CR GL and CD GL.</p></section></main>
+<script>
+// Each scenario is a function that builds a fresh version with new dollar amounts every time it is used.
+// expect.action: deposit | withdrawal | transfer | decline.  decline uses expect.reason: nsf | pw | sup.
+var R=function(a,b,s){return a+s*Math.floor(Math.random()*((b-a)/s+1))};
+var M=function(n){return "$"+n};
+var WORDS=["maple","orchid","harbor","falcon","pepper","lantern","meadow","copper","sparrow","willow","thunder","cobalt","juniper","canyon","marble","saffron","otter","glacier","ember","quartz","tulip","summit","walnut","compass"];
+var pickWord=function(){return WORDS[Math.floor(Math.random()*WORDS.length)]};
+var adv="";
+var PQ={big:"I’ll take big bills.",small:"Small bills, please.",few5:"I don’t care what bills, but I do need a few 5’s.",none:""};
+var pickPref=function(){return ["big","small","few5","none","none"][Math.floor(Math.random()*5)]};
+var cents=function(){return R(0,99,1)/100};
+var S=[
+function(){var ci=makeCash();return {cashIn:ci,title:"Cash deposit",say:"Hi, I’d like to put "+M(ci.stated)+" in cash into my savings, please.",
+ member:{name:"Jordan Lee",num:"10432",accts:[{id:"sav",name:"Savings",bal:R(800,3000,50)+cents(),t:"s"},{id:"chk",name:"Checking",bal:R(100,600,5)+cents(),t:"s"}]},
+ expect:{action:"deposit",account:"sav",amount:ci.actual,code:"CR SD"},checks:[],
+ tip:"Cash deposits still need the member’s password. Count the cash in front of the member. Deposit what you actually counted, and tell the member about any overage or shortage."}},
+function(){var a=R(200,900,25),b=R(20,100,10),pf=pickPref();return {pref:pf,cashOut:b,title:"Check deposit with cash back",say:"I need to deposit this "+M(a)+" check into checking, and can I get "+M(b)+" back in cash? "+PQ[pf],
+ member:{name:"Maria Santos",num:"10587",accts:[{id:"chk",name:"Checking",bal:R(400,1500,5)+cents(),t:"s"},{id:"sav",name:"Savings",bal:R(50,400,5)+cents(),t:"s"}]},
+ expect:{action:"deposit",account:"chk",amount:a,cash:b,code:"KR SD CD"},checks:["endorse"],
+ tip:"Enter the full check amount as the deposit and the cash back separately. Don’t net them yourself. Always check the endorsement before you accept the check."}},
+function(){var bal=R(500,1500,50)+cents(),w=R(40,300,10),pf=pickPref();return {pref:pf,cashOut:w,title:"Withdrawal",say:"Can I take "+M(w)+" out of my checking account? "+PQ[pf],
+ member:{name:"Devon Park",num:"10611",accts:[{id:"chk",name:"Checking",bal:bal,t:"s"},{id:"sav",name:"Savings",bal:R(1500,3500,50)+cents(),t:"s"}]},
+ expect:{action:"withdrawal",account:"chk",amount:w,code:"SW CD"},checks:["sig","balance"],
+ tip:"Withdrawals need the password, a signature match, and a balance check before any cash leaves the drawer."}},
+function(){var t=R(100,500,25);return {title:"Transfer between accounts",say:"I have a bill coming out of checking. Please move "+M(t)+" from my savings to my checking.",
+ member:{name:"Aisha Rahman",num:"10294",accts:[{id:"sav",name:"Savings",bal:R(1500,4000,100)+cents(),t:"s"},{id:"chk",name:"Checking",bal:R(20,200,5)+cents(),t:"s"}]},
+ expect:{action:"transfer",account:"sav",to:"chk",amount:t,code:"SW X SD"},checks:[],
+ tip:"Read the direction carefully. The money comes from the account the member names first and goes to the second."}},
+function(){var bal=R(20,120,1)+cents(),w=R(200,600,50);return {title:"Not enough money",say:"I need "+M(w)+" in cash from my checking account.",
+ member:{name:"Priya Shah",num:"10355",accts:[{id:"chk",name:"Checking",bal:bal,t:"s"}]},
+ expect:{action:"decline",reason:"nsf"},checks:["balance"],
+ why:"The balance is "+money(bal)+", which doesn’t cover "+M(w)+".",
+ tip:"Checking the balance first is the step that catches this. Offer what you can do instead, such as a smaller withdrawal."}},
+function(){var w=R(50,200,10);return {title:"Wrong password",say:"I’m in a hurry. Just withdraw "+M(w)+" from my checking.",
+ member:{name:"Carlos Ortiz",num:"10498",accts:[{id:"chk",name:"Checking",bal:R(300,900,10)+cents(),t:"s"}]},
+ expect:{action:"decline",reason:"pw"},checks:[],
+ badpw:true,
+ why:"The password the member gave doesn’t match the one on file.",
+ tip:"Don’t process anything until the member gives the correct password, even if you recognize them."}}
+];
+var $=function(i){return document.getElementById(i)};
+var order=[],pos=0,sc=null,looked=false,tried=0,perfect=0;
+var money=function(n){return n.toLocaleString("en-US",{style:"currency",currency:"USD"})};
+var LAB={deposit:["Into account",""],withdrawal:["From account",""],transfer:["From account","To account"],loan:["Pay from","Loan"]};
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function tally(){$("tally").textContent="Scenario "+(pos+1)+" of "+S.length+" · "+perfect+" of "+tried+" fully correct"}
+function load(keep){
+  if(!keep||!sc){sc=S[order[pos]]();var m0=sc.member;m0.pw=pickWord();sc.given=m0.pw;if(sc.badpw){do{sc.given=pickWord()}while(sc.given===m0.pw)}}looked=false;
+  $("stitle").textContent=sc.title;$("say").textContent="“"+sc.say+"”";
+  $("cardinfo").innerHTML="Member gives you:<br><b>Member # "+sc.member.num+"</b><br>Password: <b>"+sc.given+"</b>";
+  $("mnum").value="";$("lerr").textContent="";$("member").className="member hide";$("txn").className="hide";$("fb").className="hide";$("verify").className="hide";$("vpw").value="";$("verr").textContent="";$("vdecl").className="hide btns";$("vgo").disabled=false;$("vno").disabled=false;
+  $("act").value="deposit";$("amt").value="";$("cash").value="";$("code").value="";
+  document.querySelectorAll(".checks input").forEach(function(c){c.checked=false});
+  $("go").disabled=false;setupCash();tally();
+}
+function opts(sel,list){sel.innerHTML=list.map(function(a){return '<option value="'+a.id+'">'+a.name+" ("+money(a.bal)+")</option>"}).join("")}
+function form(){
+  var a=$("act").value,m=sc.member,d=a==="decline";
+  $("fAcct").className=d?"hide":"";$("fCode").className=d?"hide":"";$("cashIn").className=(sc.cashIn&&a==="deposit")?"":"hide";$("cashOut").className=(sc.cashOut&&(a==="withdrawal"||a==="deposit"))?"":"hide";$("fAmt").className=d?"hide":"";$("fWhy").className=d?"":"hide";
+  $("fCash").className=a==="deposit"?"":"hide";
+  $("fTo").className=(a==="transfer"||a==="loan")?"":"hide";
+  if(LAB[a]){$("acctL").textContent=LAB[a][0];$("toL").textContent=LAB[a][1]}
+  var shares=m.accts.filter(function(x){return x.t==="s"});
+  opts($("acct"),shares);
+  if(a==="transfer")opts($("to"),shares);
+  if(a==="loan")opts($("to"),m.accts.filter(function(x){return x.t==="l"}));
+}
+$("act").onchange=form;
+$("lookup").onclick=function(){
+  var v=$("mnum").value.trim();
+  if(v!==sc.member.num){$("lerr").textContent="No member found with that number. Check the card and try again.";return}
+  $("lerr").textContent="";looked=true;$("verify").className="";$("vpw").focus();
+};
+function showMember(){var m=sc.member;
+  $("member").innerHTML="<b>"+m.name+"</b><div class='muted'>Member # "+m.num+" · Password verified ✓</div>"+
+    m.accts.map(function(a){return "<div class='acct'><span>"+a.name+"</span><span>"+money(a.bal)+"</span></div>"}).join("");
+  $("member").className="member";$("txn").className="";form();
+};
+$("mnum").onkeydown=function(e){if(e.key==="Enter")$("lookup").click()};
+$("go").onclick=function(){
+  var e=sc.expect,a=$("act").value,items=[],ok=true;adv="";
+  function add(good,msg){items.push([good,msg]);if(!good)ok=false}
+  add(a===e.action,a===e.action?"Right transaction type.":"This should have been a "+(e.action==="decline"?"decline or referral":({deposit:"deposit",withdrawal:"withdrawal",transfer:"transfer",loan:"loan payment"})[e.action])+".");
+  if(a===e.action){
+    if(a==="decline"){
+      var r=$("why").value;add(r===e.reason,r===e.reason?"Right reason: "+sc.why:"Wrong reason. "+sc.why)
+    }else{
+      var amt=parseFloat($("amt").value)||0,cash=parseFloat($("cash").value)||0,got=[];
+      add($("acct").value===e.account,$("acct").value===e.account?"Right account.":"Wrong account selected.");
+      if(e.to)add($("to").value===e.to,$("to").value===e.to?"Right destination.":"Wrong destination account.");
+      add(Math.abs(amt-e.amount)<0.005,Math.abs(amt-e.amount)<0.005?"Amount "+money(e.amount)+" is correct.":"Amount is off. You entered "+money(amt)+".");
+      if(a==="deposit")add(Math.abs(cash-(e.cash||0))<0.005,Math.abs(cash-(e.cash||0))<0.005?"Cash back is correct.":"Cash back is off. You entered "+money(cash)+".");
+      var cd=norm($("code").value);add(cd===e.code,cd===e.code?"Tran code "+e.code+" is correct.":"Tran code should be "+e.code+(cd?". You entered "+cd+".":". You left it blank."));
+      cashGrade(add,a);
+    }
+  }
+  var on=[].slice.call(document.querySelectorAll(".checks input:checked")).map(function(c){return c.value});
+  var NAMES={pw:"confirm the member’s password",sig:"compare the signature",endorse:"check the endorsement",balance:"confirm the balance"};
+  var miss=sc.checks.filter(function(c){return on.indexOf(c)<0});
+  if(sc.checks.length)add(miss.length===0,miss.length===0?"Required checks done.":"You skipped: "+miss.map(function(c){return NAMES[c]}).join(", ")+".");
+  tried++;if(ok)perfect++;tally();
+  var h="<div class='verdict "+(ok?"y":"n")+"'>"+(ok?"Fully correct":"Not quite")+"</div><ul>"+
+    items.map(function(i){return "<li class='"+(i[0]?"y":"n")+"'>"+i[1]+"</li>"}).join("")+"</ul>"+adv+"<p class='tip'>"+sc.tip+"</p>"+
+    "<div class='btns'><button class='alt' id='again'>Try again</button><button id='next'>"+(pos<S.length-1?"Next scenario":"Start over")+"</button></div>";
+  $("fb").innerHTML=h;$("fb").className="";$("go").disabled=true;
+  $("fb").scrollIntoView({behavior:"smooth",block:"nearest"});
+  $("again").onclick=function(){tried--;if(ok)perfect--;load(true)};
+  $("next").onclick=function(){pos++;if(pos>=S.length){pos=0;tried=0;perfect=0;shuffle(order)}load();window.scrollTo(0,0)};
+};
+function norm(s){return s.toUpperCase().replace(/[^A-Z ]/g," ").replace(/\s+/g," ").trim()}
+var CODES={CR:"cash received",CD:"cash disbursed",KR:"check received (depositing a check)",KC:"cash a check",SD:"share deposit",SW:"share withdrawal",LP:"loan or credit card payment",LA:"loan advance (money out of a loan)",SC:"share comment (shows on the receipt)",GL:"general ledger (buying or selling cash with the vault or another teller)",X:"transfer between shares"};
+function rnd(a,b,s){return a+s*Math.floor(Math.random()*((b-a)/s+1))}
+function fill(t){var A=rnd(250,900,25),B=rnd(20,150,10),C=rnd(20,150,10);while(C===B)C=rnd(20,150,10);return t.replace(/\{A\}/g,function(){return "$"+A}).replace(/\{B\}/g,function(){return "$"+B}).replace(/\{C\}/g,function(){return "$"+C})}
+// Each prompt uses {A} (large), {B} and {C} (smaller) as placeholders; new dollar amounts are filled in every time.
+var D=[["I have a {A} check to deposit to my checking","KR SD"],["I have {B} in cash and a {A} check to go to my savings","CR KR SD"],["I need to cash this {A} check","KC"],["Buy your cash drawer","CR GL"],["I want to withdraw {B} in cash from my checking","SW CD"],["I’d like to withdraw {B} from my savings and {C} from my checking, all in cash","SW SW CD"],["I have a {A} check. I want {B} in savings and the rest in cash","KR SD CD"],["I’d like to cash these two checks, {A} and {B}","KC"],["I have {A} in cash that I got for my birthday. I want {B} to go to checking and the rest to my vacation shares","CR SD SD"],["Sell your cash drawer","CD GL"],["I have a {A} check and {B} in cash. I want to deposit some into my regular shares and some to my vacation shares","CR KR SD SD"],["I have a {A} check. I want {B} in checking, {C} in savings, and the rest in cash","KR SD SD CD"],["I have {A} in cash to deposit to my checking","CR SD"],["I need to transfer {B} from my savings to my checking","SW X SD"],["I have two accounts here. I need to transfer {A} from one account to the other","SW X SD Y"],["I owe money to my friend and I am not on his account. Please transfer {B} from my checking to his account","SW SC SD Y SC Y"],["I need to withdraw {B} in cash from my savings","SW CD"],["I have a {A} check. I want {B} into my checking and the rest into my savings","KR SD SD"],["I have {A} in cash. I want {B} in checking, {C} in vacation shares, and the rest in savings","CR SD SD SD"],["I have {B} in cash and a {A} check. I want all of it deposited to my checking","CR KR SD"]];
+var dord=shuffle(D.map(function(_,i){return i})),dpos=0,dgot=0,dfirst=true,ddone=false;
+function dshow(){var q=D[dord[dpos]];$("dsay").textContent="“"+fill(q[0])+"”";$("dans").value="";$("dfb").innerHTML="";dfirst=true;ddone=false;$("dcheck").textContent="Check code";$("dcount").textContent="Question "+(dpos+1)+" of "+D.length+" · "+dgot+" right on the first try";$("dans").focus()}
+function explain(a){return "<ul>"+a.split(" ").map(function(t){return "<li><b>"+t+"</b> "+(CODES[t]||"")+"</li>"}).join("")+"</ul>"}
+function dnext(){dpos++;if(dpos>=D.length){dpos=0;dgot=0;shuffle(dord)}dshow()}
+function dgo(){
+  if(ddone){dnext();return}
+  var q=D[dord[dpos]],v=norm($("dans").value);
+  if(!v){$("dfb").innerHTML="<p class='err'>Type a tran code first.</p>";return}
+  if(v===q[1]){if(dfirst)dgot++;ddone=true;$("dcheck").textContent="Next question";
+    $("dfb").innerHTML="<div class='verdict y'>Correct: "+q[1]+"</div>"+explain(q[1]);$("dcount").textContent="Question "+(dpos+1)+" of "+D.length+" · "+dgot+" right on the first try"}
+  else{dfirst=false;$("dfb").innerHTML="<div class='verdict n'>Not quite</div><p class='tip'>Start with the source of the money (cash or check), then where it goes (share, loan, transfer). Try again, or <button class='alt' id='rev'>show the answer</button></p>";
+    $("rev").onclick=function(){ddone=true;$("dcheck").textContent="Next question";$("dfb").innerHTML="<div class='verdict n'>Answer: "+q[1]+"</div>"+explain(q[1])}}
+}
+$("dcheck").onclick=dgo;$("dans").onkeydown=function(e){if(e.key==="Enter")dgo()};
+$("reflist").innerHTML=Object.keys(CODES).map(function(k){return "<li><b>"+k+"</b> "+CODES[k]+"</li>"}).join("");
+function tab(n){["scen","drill","ref"].forEach(function(k){$(k).classList.toggle("hide",k!==n);$("t_"+k).classList.toggle("on",k===n)});$("tally").style.visibility=n==="scen"?"visible":"hidden";if(n==="drill")dshow()}
+["scen","drill","ref"].forEach(function(k){$("t_"+k).onclick=function(){tab(k)}});
+function vcheck(){
+  var t=norm($("vpw").value);
+  if(!t){$("verr").textContent="Type the password the member gave you.";return}
+  if(t===sc.member.pw.toUpperCase()){$("verify").className="hide";showMember();return}
+  $("verr").textContent="That doesn’t match our records. Don’t open the account. Re-check what you typed, or decline.";$("vdecl").className="";
+}
+$("vgo").onclick=vcheck;$("vpw").onkeydown=function(e){if(e.key==="Enter")vcheck()};
+$("vno").onclick=function(){
+  if(!sc.badpw){$("verr").textContent="The password the member gave you should match. Re-check what you typed.";return}
+  tried++;perfect++;tally();
+  $("fb").innerHTML="<div class='verdict y'>Fully correct</div><ul><li class='y'>You asked for the password before opening the account.</li><li class='y'>The word the member gave doesn’t match the one on file, so declining was right.</li></ul><p class='tip'>"+sc.tip+"</p><div class='btns'><button class='alt' id='again'>Try again</button><button id='next'>"+(pos<S.length-1?"Next scenario":"Start over")+"</button></div>";
+  $("fb").className="";$("vgo").disabled=true;$("vno").disabled=true;
+  $("fb").scrollIntoView({behavior:"smooth",block:"nearest"});
+  $("again").onclick=function(){tried--;perfect--;load(true)};
+  $("next").onclick=function(){pos++;if(pos>=S.length){pos=0;tried=0;perfect=0;shuffle(order)}load();window.scrollTo(0,0)};
+};
+var DEN=[100,50,20,10,5,1];
+function makeCash(){var b={100:R(1,3,1),50:R(0,2,1),20:R(0,5,1),10:R(0,3,1),5:R(0,3,1),1:R(0,5,1)},t=0;DEN.forEach(function(d){t+=d*b[d]});var o=Math.floor(Math.random()*3),df=[5,10,20][Math.floor(Math.random()*3)];return {bills:b,actual:t,stated:o===0?t:o===1?t-df:t+df}}
+function billText(b){return DEN.filter(function(d){return b[d]}).map(function(d){return b[d]+" × $"+d}).join(", ")}
+function readMix(){var m={};DEN.forEach(function(d){var n=parseInt($("dn"+d).value,10)||0;if(n>0)m[d]=n});return m}
+function mixTotal(m){var t=0;DEN.forEach(function(d){t+=d*(m[d]||0)});return t}
+function mixCount(m){var t=0;DEN.forEach(function(d){t+=m[d]||0});return t}
+function greedy(amt,den){var o={};den.forEach(function(d){var n=Math.floor(amt/d);if(n){o[d]=n;amt-=n*d}});return o}
+function best(amt,pref){if(pref==="small")return greedy(amt,[20,10,5,1]);if(pref==="few5"){var o=greedy(amt-15,DEN);o[5]=(o[5]||0)+3;return o}return greedy(amt,DEN)}
+function prefOk(p,m,n,bn){return p==="big"?n===bn:p==="small"?!(m[100]||m[50]):p==="few5"?(m[5]||0)>=3:true}
+var PQT={big:"I’ll take big bills",small:"Small bills, please",few5:"I don’t care, but I do need a few 5’s"};
+function narr(){
+  var mix=readMix(),old={};
+  $("narr").querySelectorAll("input").forEach(function(i){old[i.dataset.d]=i.value});
+  $("narr").innerHTML=DEN.filter(function(d){return mix[d]}).map(function(d){return "<div class='nr'>I’m handing you <b>"+mix[d]+" × $"+d+"</b>. That brings us to $<input data-d='"+d+"' inputmode='decimal' value='"+(old[d]||"")+"'></div>"}).join("");
+  $("coTotal").textContent="Bills selected: "+mixCount(mix)+" · total "+money(mixTotal(mix))+" of "+money(sc.cashOut||0);
+}
+function setupCash(){
+  var ci=sc.cashIn;
+  $("handed").className=ci?"card":"card hide";
+  if(ci)$("handed").innerHTML="Member hands you: <b>"+billText(ci.bills)+"</b>";
+  $("cin").value="";$("cdiff").value="";$("cres").value="match";
+  DEN.forEach(function(d){$("dn"+d).value=""});
+  $("narr").innerHTML="";$("coTotal").textContent="";
+  if(sc.cashOut)$("coAmt").textContent=money(sc.cashOut);
+}
+function cashGrade(add,a){
+  var ci=sc.cashIn,co=sc.cashOut;
+  if(ci&&a==="deposit"){
+    var c=parseFloat($("cin").value)||0,r=$("cres").value,df=parseFloat($("cdiff").value)||0,st=ci.stated,ac=ci.actual,d=Math.abs(ac-st);
+    var cOk=Math.abs(c-ac)<0.005;
+    add(cOk,cOk?"Cash count "+money(ac)+" is correct.":"Recount the cash. You counted "+money(c)+".");
+    var er=ac>st?"over":ac<st?"short":"match";
+    add(r===er,r===er?(er==="match"?"Right call: the count matches what the member said.":"Right call: "+(er==="over"?"an overage":"a shortage")+" compared to the "+money(st)+" the member said."):"Compare your count to the "+money(st)+" the member said.");
+    if(er!=="match")add(Math.abs(df-d)<0.005,Math.abs(df-d)<0.005?"Difference of "+money(d)+" is correct.":"The difference should be "+money(d)+".");
+  }
+  if(co&&(a==="withdrawal"||a==="deposit")){
+    var mix=readMix(),t=mixTotal(mix),n=mixCount(mix),bm=best(co,sc.pref),bn=mixCount(bm),pq=PQT[sc.pref];
+    add(Math.abs(t-co)<0.005,Math.abs(t-co)<0.005?"Bills add up to "+money(co)+".":"Your bills total "+money(t)+", but the member is owed "+money(co)+".");
+    var run=0,bad=[];
+    DEN.forEach(function(d){if(mix[d]){run+=mix[d]*d;var el=$("narr").querySelector("input[data-d='"+d+"']");if(!el||parseFloat(el.value)!==run)bad.push("$"+d)}});
+    add(n>0&&bad.length===0,n===0?"Choose the bills you will give the member.":bad.length?"Check your running totals in the count-back (after the "+bad.join(", ")+" bills).":"Count-back narrative is correct.");
+    if(pq){var pk=prefOk(sc.pref,mix,n,bn);add(pk,pk?"Honors the member’s request (“"+pq+"”).":"This doesn’t honor the member’s request (“"+pq+"”).")}
+    adv="<p class='tip'><b>Best bill choice:</b> "+billText(bm)+" ("+bn+" bills). "+(n===bn&&Math.abs(t-co)<0.005?"Your mix uses the same number of bills.":"You used "+n+" bills.")+" Fewer bills means a faster, easier count-back"+(pq?", as long as the member’s request is honored":"")+".</p>";
+  }
+}
+$("den").innerHTML=DEN.map(function(d){return "<div><label for='dn"+d+"'>$"+d+"</label><input id='dn"+d+"' type='number' min='0' inputmode='numeric'></div>"}).join("");
+$("den").oninput=narr;
+S.forEach(function(_,i){order.push(i)});shuffle(order);load();
+</script>
+</body>
+</html>
